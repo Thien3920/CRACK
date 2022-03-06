@@ -1,11 +1,11 @@
-from utils.load_model import Model
+from ImageClassification.utils.load_model import Model
 import cv2
 import numpy as np
 from glob import glob
 import shutil
 import os
 
-def export_error_one_class(model,path_image,threshold=50,object = 'cracked'):
+def export_error_one_class(model,path_image,threshold=30,object = 'cracked'):
     classes = {
                 "cracked":0,
                 "uncracked":1,
@@ -13,6 +13,7 @@ def export_error_one_class(model,path_image,threshold=50,object = 'cracked'):
     list_images = glob(path_image + '/*.jpg') + glob(path_image + '/*.jpeg') + glob(path_image + '/*.png')
     list_images.sort()
     total_imges = len(list_images)
+
 
     A = np.zeros(shape=[total_imges,3])
     A = np.array(A,dtype = str)
@@ -22,13 +23,14 @@ def export_error_one_class(model,path_image,threshold=50,object = 'cracked'):
         pred = model.predict(image)
         image_name = image_path.split('/')[-1]
         score = pred[1][classes[object]]
+        score = score - 0.0000001
         A[int(i),:] = [object,score,image_name]
 
     # get another images with  score <= threshold
     error_image = A[ A[:,1]<=str(threshold) ]
     return error_image
 
-def export_error_test(model,input_path,output_path,threshold = 50):
+def export_error_test(model,input_path,output_path,threshold = 30):
     crack_path = os.path.join(input_path,'cracked')
     uncrack_path = os.path.join(input_path,'uncracked')
 
@@ -51,7 +53,7 @@ def export_error_test(model,input_path,output_path,threshold = 50):
 
 if __name__ == "__main__":
 
-    model = Model("/home/thien/Desktop/crack_detection/models_resnet/Resnet101")
-    input_path = '/home/thien/Desktop/crack_detection/ImageClassification/dataset/train'
-    output_path = './Data/error_train'
+    model = Model("/home/thien/Desktop/crack_detection/models_resnet/ResNet34")
+    input_path = '/home/thien/Desktop/crack_detection/ImageClassification/dataset/val'
+    output_path = './Data/error_val'
     export_error_test(model,input_path,output_path,threshold=30)
