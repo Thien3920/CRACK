@@ -1,13 +1,16 @@
-from utils.image_processor import *
+
+from ToolMakeNoise.make_noise.tool import rain, sun, smoke,rotation
 from glob import glob
+import argparse
+import random
 import cv2
 import os
 
-import argparse
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_dir',default = './Data/error_train', help='input directory path')
-parser.add_argument('--output_dir', default = './Data/augmentation_dataset',help='output directory path')
+parser.add_argument('--output_dir', default = './Data/train_augmentation_dataset',help='output directory path')
 args = parser.parse_args()
 
 input_dir = args.input_dir
@@ -28,10 +31,20 @@ for i in ["cracked","uncracked"]:
         image_name = J.split("/")[-1]
         I = cv2.imread(J)
 
+        func = ['rain', 'smoke','sun']
         ###
         for angle in [90 , -90 , 180]:
-            img = rotate_image(I,angle)
-            img = blur_image(img, dsize=5)
+            img = rotation(I,angle)
 
-            dst = os.path.join(output_dir,i,str(angle)+"_"+image_name)
-            cv2.imwrite(dst,img)
+            f = random.choice(func)
+            if f == "rain":
+                out = rain(img)
+            elif f == "smoke":
+                out = smoke(img)
+            else:
+                 out = sun(img)
+
+            # out = K = cv2.hconcat([I, out])
+
+            dst = os.path.join(output_dir,i,f+"_"+str(angle)+"_"+image_name)
+            cv2.imwrite(dst,out)

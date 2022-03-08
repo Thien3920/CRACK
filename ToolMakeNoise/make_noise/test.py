@@ -10,7 +10,7 @@ import cv2
 # im = tool.blur(img, i)
 # cv2.imshow(str(i), im)
 
-im = cv2.imread('I:/More/AI/Projects/CrackDetection/dataset_crack_div/dataset_crack_div/dataset/test_short/uncracked/14922.jpg')
+im = cv2.imread('/home/thien/Desktop/crack_detection/ImageClassification/dataset/test/cracked/28.jpg')
 # cv2.imshow('a', im)
 for i in range(10):
     # if i % 1000 == 0:

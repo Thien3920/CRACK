@@ -6,15 +6,18 @@ import os
 import glob
 
 
-def brightness(img, alpha):
+def brightness(image, alpha):
     """
         change brightness image
         alpha = 0 : 250
     """
-    img_new = np.asarray(img + alpha)   # cast pixel values to int
-    img_new[img_new > 255] = 255
-    img_new[img_new < 0] = 0
-    return img_new
+
+    img = image + alpha  # cast pixel values to int
+    img_new = img
+    img_new[img > 255] = 255
+    img_new[img < 0] = 0
+    return np.uint8(img_new)
+
 
 
 def rotation(image, angle):
@@ -116,6 +119,8 @@ def random_position(img, mark, t):
     return img
 
 
+
+
 def noise(image, path_img_noise, ness, math, scale=1):
     # random type rain
     list_rain_type = glob.glob(path_img_noise + '/*.png')
@@ -126,31 +131,28 @@ def noise(image, path_img_noise, ness, math, scale=1):
     # scale image
     [x, y, z] = rain_drop_img.shape
     [x_new, y_new] = [int(x*scale), int(y*scale)]
-    rain_drop_img = cv2.resize(rain_drop_img, [y_new, x_new])
-    cv2.imwrite('temp.jpg', rain_drop_img)  #
-    rain_drop_img = cv2.imread('temp.jpg')  # need to be improved
-    os.remove('temp.jpg')                   #
+    rain_drop_img = cv2.resize(rain_drop_img, (y_new, x_new))
     image = random_position(image, rain_drop_img, math)
     return image
 
 
 def raindrop(image, level=30, scale_level=1.5):
     for i in range(level):
-        rain_drop_path = 'I:/More/AI/Projects/CrackDetection/ImageClassification-master-update/noise/raindrop'
+        rain_drop_path = '/home/thien/Desktop/crack_detection/ToolMakeNoise/noise/raindrop'
         ness = random.randint(-30, -20)
         image = noise(image, rain_drop_path, ness, 'add', scale_level)
     return image
 
 
 def smoke(image, scale_level=3):
-    path_smoke_noise = 'I:/More/AI/Projects/CrackDetection/ImageClassification-master-update/noise/smoke'
+    path_smoke_noise = '/home/thien/Desktop/crack_detection/ToolMakeNoise/noise/smoke'
     # change brightness
     ness = random.randint(-30, -10)
     return noise(image, path_smoke_noise, ness, random.choice(['add', 'subtract']), scale_level)
 
 
 def dust(image, scale_level=3):
-    path_smoke_noise = 'I:/More/AI/Projects/CrackDetection/ImageClassification-master-update/noise/dust'
+    path_smoke_noise = '/home/thien/Desktop/crack_detection/ToolMakeNoise/noise/dust'
     # change brightness
     ness = random.randint(-50, -40)
     return noise(image, path_smoke_noise, ness, 'add', scale_level)
@@ -158,7 +160,7 @@ def dust(image, scale_level=3):
 
 def rain(image, scale_level=2):
     # random type rain
-    path_rain_noise = 'I:/More/AI/Projects/CrackDetection/ImageClassification-master-update/noise/rain'
+    path_rain_noise = '/home/thien/Desktop/crack_detection/ToolMakeNoise/noise/rain'
     # change brightness
     ness = random.randint(-220, -200)
     return noise(image, path_rain_noise, ness, 'subtract', scale_level)
@@ -184,16 +186,13 @@ def rain(image, scale_level=2):
 
 def sun(image):
     # random type sun
-    path_sun_noise = 'I:/More/AI/Projects/CrackDetection/ImageClassification-master-update/noise/sun'
+    path_sun_noise = '/home/thien/Desktop/crack_detection/ToolMakeNoise/noise/sun'
     list_sun_type = glob.glob(path_sun_noise + '/*.png')
     sun_type_img = random.choice(list_sun_type)
     sun_img = cv2.imread(sun_type_img)
     # change brightness
     ness = random.randint(-210, -185)
     sun_img = brightness(sun_img, ness)
-    cv2.imwrite('temp.jpg', sun_img)  #
-    sun_img = cv2.imread('temp.jpg')  # need to be improved
-    os.remove('temp.jpg')
     image[0:255, 0:255] = cv2.add(image[0:255, 0:255], sun_img[0:255, 0:255])
     return image
 
@@ -212,3 +211,13 @@ def salt_pepper_noise(image, prob=5):
             else:
                 output[i][j] = image[i][j]
     return output
+
+if __name__ == '__main__':
+    im = cv2.imread('/home/thien/Desktop/crack_detection/ImageClassification/balance_dataset/Data/error_val/cracked/13611.jpg')
+    #im = rain(im, scale_level=2)
+    #im = sun(im)
+    im  = salt_pepper_noise(im)
+    #im = smoke(im)
+    cv2.imshow('image',im)
+    cv2.imwrite('img.jpg',im)
+    cv2.waitKey(0)
